@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Copyright (c) 2025, Jens Reidel <adrian@travitia.xyz>
+ */
+
+/dts-v1/;
+
+#include "sm7450.dtsi"
+
+/delete-node/ &adsp_mem;
+/delete-node/ &xbl_ramdump_mem;
+
+/ {
+	model = "Xiaomi 13 Lite / Civi 2";
+	compatible = "xiaomi,ziyi", "qcom,sm7450";
+	chassis-type = "handset";
+
+	aliases {
+	};
+
+	chosen {
+		bootargs = "earlycon=tty0 console=tty0";
+
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		stdout-path = "framebuffer0";
+
+		framebuffer0: framebuffer@b8000000 {
+			compatible = "simple-framebuffer";
+			reg = <0x0 0xb8000000 0x0 0x2b00000>;
+			width = <1080>;
+			height = <2400>;
+			stride = <(1080 * 4)>;
+			format = "a8r8g8b8";
+		};
+	};
+
+	reserved-memory {
+		adsp_mem@9f300000 {
+			reg = <0x0 0x9f300000 0x0 0x3100000>;
+			no-map;
+		};
+
+		xbl_ramdump_mem@a6b80000 {
+			reg = <0x0 0xa6b80000 0x0 0x280000>;
+			no-map;
+		};
+
+		splash_region@b8000000 {
+			reg = <0x0 0xb8000000 0x0 0x2b00000>;
+			no-map;
+		};
+
+		ramoops@a7000000 {
+			compatible = "ramoops";
+			reg = <0x0 0xa7000000 0x0 0x400000>;
+			console-size = <0x200000>;
+			pmsg-size = <0x200000>;
+		};
+	};
+};
+
