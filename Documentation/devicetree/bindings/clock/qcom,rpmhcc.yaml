@@ -18,6 +18,7 @@ properties:
   compatible:
     enum:
       - qcom,eliza-rpmh-clk
+      - qcom,fillmore-rpmh-clk
       - qcom,glymur-rpmh-clk
       - qcom,hawi-rpmh-clk
       - qcom,kaanapali-rpmh-clk
