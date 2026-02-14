@@ -68,6 +68,11 @@ properties:
 
       - items:
           - enum:
+              - xiaomi,ziyi
+          - const: qcom,fillmore
+
+      - items:
+          - enum:
               - qcom,glymur-crd
           - const: qcom,glymur
 
