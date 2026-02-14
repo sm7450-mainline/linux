@@ -25,6 +25,7 @@ properties:
     items:
       - enum:
           - qcom,eliza-dwc3
+          - qcom,fillmore-dwc3
           - qcom,glymur-dwc3
           - qcom,glymur-dwc3-mp
           - qcom,ipq4019-dwc3
