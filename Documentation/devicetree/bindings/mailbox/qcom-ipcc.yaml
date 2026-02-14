@@ -25,6 +25,7 @@ properties:
     items:
       - enum:
           - qcom,eliza-ipcc
+          - qcom,fillmore-ipcc
           - qcom,glymur-ipcc
           - qcom,hawi-ipcc
           - qcom,kaanapali-ipcc
