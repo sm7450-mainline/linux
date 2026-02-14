@@ -28,6 +28,16 @@ config PINCTRL_ELIZA
 	  Say Y here to compile statically, or M here to compile it as a module.
 	  If unsure, say N.
 
+config PINCTRL_FILLMORE
+	tristate "Qualcomm Technologies Inc Fillmore pin controller driver"
+	depends on ARM64 || COMPILE_TEST
+	help
+	  This is the pinctrl, pinmux, pinconf and gpiolib driver for the
+	  Qualcomm Technologies Inc Top Level Mode Multiplexer block (TLMM)
+	  found on the Qualcomm Technologies Inc Fillmore platform.
+	  Say Y here to compile statically, or M here to compile it as a module.
+	  If unsure, say N.
+
 config PINCTRL_GLYMUR
 	tristate "Qualcomm Glymur pin controller driver"
 	depends on ARM64 || COMPILE_TEST
