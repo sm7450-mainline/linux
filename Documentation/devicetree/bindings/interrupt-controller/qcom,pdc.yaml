@@ -27,6 +27,7 @@ properties:
     items:
       - enum:
           - qcom,eliza-pdc
+          - qcom,fillmore-pdc
           - qcom,glymur-pdc
           - qcom,hawi-pdc
           - qcom,kaanapali-pdc
