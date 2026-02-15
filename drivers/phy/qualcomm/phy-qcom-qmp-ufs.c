@@ -1227,6 +1227,11 @@ static inline void qphy_clrbits(void __iomem *base, u32 offset, u32 val)
 }
 
 /* Regulator bulk data with load values for specific configurations */
+static const struct regulator_bulk_data fillmore_ufsphy_vreg_l[] = {
+	{ .supply = "vdda-phy", .init_load_uA = 88100 },
+	{ .supply = "vdda-pll", .init_load_uA = 18300 },
+};
+
 static const struct regulator_bulk_data milos_ufsphy_vreg_l[] = {
 	{ .supply = "vdda-phy", .init_load_uA = 140120 },
 	{ .supply = "vdda-pll", .init_load_uA = 18340 },
@@ -1323,6 +1328,40 @@ static const struct qmp_ufs_offsets qmp_ufs_offsets_v6 = {
 	.rx		= 0x1200,
 	.tx2		= 0x1800,
 	.rx2		= 0x1a00,
+};
+
+static const struct qmp_phy_cfg fillmore_ufsphy_cfg = {
+	.lanes			= 2,
+
+	.offsets		= &qmp_ufs_offsets,
+	.max_supported_gear	= UFS_HS_G4,
+
+	.tbls = {
+		.serdes		= sm8350_ufsphy_serdes,
+		.serdes_num	= ARRAY_SIZE(sm8350_ufsphy_serdes),
+		.tx		= sm8350_ufsphy_tx,
+		.tx_num		= ARRAY_SIZE(sm8350_ufsphy_tx),
+		.rx		= sm8350_ufsphy_rx,
+		.rx_num		= ARRAY_SIZE(sm8350_ufsphy_rx),
+		.pcs		= sm8350_ufsphy_pcs,
+		.pcs_num	= ARRAY_SIZE(sm8350_ufsphy_pcs),
+	},
+	.tbls_hs_b = {
+		.serdes		= sm8350_ufsphy_hs_b_serdes,
+		.serdes_num	= ARRAY_SIZE(sm8350_ufsphy_hs_b_serdes),
+	},
+	.tbls_hs_overlay[0] = {
+		.tx		= sm8350_ufsphy_g4_tx,
+		.tx_num		= ARRAY_SIZE(sm8350_ufsphy_g4_tx),
+		.rx		= sm8350_ufsphy_g4_rx,
+		.rx_num		= ARRAY_SIZE(sm8350_ufsphy_g4_rx),
+		.pcs		= sm8350_ufsphy_g4_pcs,
+		.pcs_num	= ARRAY_SIZE(sm8350_ufsphy_g4_pcs),
+		.max_gear	= UFS_HS_G4,
+	},
+	.vreg_list		= fillmore_ufsphy_vreg_l,
+	.num_vregs		= ARRAY_SIZE(fillmore_ufsphy_vreg_l),
+	.regs			= ufsphy_v5_regs_layout,
 };
 
 static const struct qmp_phy_cfg milos_ufsphy_cfg = {
@@ -2259,6 +2298,9 @@ err_node_put:
 
 static const struct of_device_id qmp_ufs_of_match_table[] = {
 	{
+		.compatible = "qcom,fillmore-qmp-ufs-phy",
+		.data = &fillmore_ufsphy_cfg,
+	}, {
 		.compatible = "qcom,milos-qmp-ufs-phy",
 		.data = &milos_ufsphy_cfg,
 	}, {
