@@ -39,6 +39,7 @@ properties:
           - const: qcom,sm8750-qmp-ufs-phy
       - enum:
           - qcom,milos-qmp-ufs-phy
+          - qcom,fillmore-qmp-ufs-phy
           - qcom,msm8996-qmp-ufs-phy
           - qcom,msm8998-qmp-ufs-phy
           - qcom,sa8775p-qmp-ufs-phy
@@ -109,6 +110,7 @@ allOf:
           contains:
             enum:
               - qcom,milos-qmp-ufs-phy
+              - qcom,fillmore-qmp-ufs-phy
               - qcom,msm8998-qmp-ufs-phy
               - qcom,sa8775p-qmp-ufs-phy
               - qcom,sc7180-qmp-ufs-phy
