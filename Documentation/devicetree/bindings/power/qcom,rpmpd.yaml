@@ -75,6 +75,10 @@ properties:
           - enum:
               - qcom,msm8937-rpmpd
           - const: qcom,msm8917-rpmpd
+      - items:
+          - enum:
+              - qcom,fillmore-rpmhpd
+          - const: qcom,sm8450-rpmhpd
 
   '#power-domain-cells':
     const: 1
