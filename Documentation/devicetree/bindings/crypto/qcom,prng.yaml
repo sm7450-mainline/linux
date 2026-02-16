@@ -17,6 +17,7 @@ properties:
           - qcom,prng-ee  # 8996 and later using EE
       - items:
           - enum:
+              - qcom,fillmore-trng
               - qcom,glymur-trng
               - qcom,hawi-trng
               - qcom,ipq5332-trng
