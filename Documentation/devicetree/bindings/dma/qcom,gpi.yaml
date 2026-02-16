@@ -25,6 +25,7 @@ properties:
       - items:
           - enum:
               - qcom,eliza-gpi-dma
+              - qcom,fillmore-gpi-dma
               - qcom,glymur-gpi-dma
               - qcom,hawi-gpi-dma
               - qcom,kaanapali-gpi-dma
