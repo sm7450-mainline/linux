@@ -1574,6 +1574,10 @@ static const struct qcom_pas_data sm8750_mpss_resource = {
 
 static const struct of_device_id qcom_pas_of_match[] = {
 	{ .compatible = "qcom,eliza-adsp-pas", .data = &sm8550_adsp_resource },
+	{ .compatible = "qcom,fillmore-adsp-pas", .data = &sm8350_adsp_resource },
+	{ .compatible = "qcom,fillmore-cdsp-pas", .data = &sm8350_cdsp_resource },
+	{ .compatible = "qcom,fillmore-mpss-pas", .data = &sm8450_mpss_resource },
+	{ .compatible = "qcom,fillmore-wpss-pas", .data = &sc7280_wpss_resource },
 	{ .compatible = "qcom,milos-adsp-pas", .data = &sm8550_adsp_resource },
 	{ .compatible = "qcom,milos-cdsp-pas", .data = &milos_cdsp_resource },
 	{ .compatible = "qcom,milos-mpss-pas", .data = &sm8450_mpss_resource },
