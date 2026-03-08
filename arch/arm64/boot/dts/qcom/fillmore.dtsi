@@ -1165,6 +1165,7 @@
 			ufs_opp_table: opp-table {
 				compatible = "operating-points-v2";
 
+				/*
 				opp-75000000 {
 					opp-hz = /bits/ 64 <75000000>,
 						 /bits/ 64 <0>,
@@ -1176,6 +1177,7 @@
 						 /bits/ 64 <0>;
 					required-opps = <&rpmhpd_opp_low_svs>;
 				};
+				*/
 
 				opp-150000000 {
 					opp-hz = /bits/ 64 <150000000>,
