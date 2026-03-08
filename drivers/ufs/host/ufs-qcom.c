@@ -574,7 +574,7 @@ static void ufs_qcom_enable_hw_clk_gating(struct ufs_hba *hba)
 		goto out;
 
 	err = ufshcd_dme_rmw(hba, PA_VS_CLK_CFG_REG_MASK,
-			     PA_VS_CLK_CFG_REG_MASK, PA_VS_CLK_CFG_REG);
+			     PA_VS_CLK_CFG_REG_MASK1, PA_VS_CLK_CFG_REG);
 	if (err)
 		goto out;
 

@@ -27,6 +27,7 @@
 /* bit and mask definitions for PA_VS_CLK_CFG_REG attribute */
 #define PA_VS_CLK_CFG_REG      0x9004
 #define PA_VS_CLK_CFG_REG_MASK GENMASK(8, 0)
+#define PA_VS_CLK_CFG_REG_MASK1 GENMASK(7, 0)
 
 /* bit and mask definitions for DL_VS_CLK_CFG attribute */
 #define DL_VS_CLK_CFG          0xA00B
