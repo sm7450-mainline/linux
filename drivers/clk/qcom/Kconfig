@@ -1553,6 +1553,15 @@ config SM_GPUCC_6350
 	  Say Y if you want to support graphics controller devices and
 	  functionality such as 3D graphics.
 
+config SM_GPUCC_FILLMORE
+	tristate "Fillmore Graphics Clock Controller"
+	depends on ARM64 || COMPILE_TEST
+	select SM_GCC_FILLMORE
+	help
+	  Support for the graphics clock controller on Fillmore devices.
+	  Say Y if you want to support graphics controller devices and
+	  functionality such as 3D graphics.
+
 config SM_GPUCC_MILOS
 	tristate "Milos Graphics Clock Controller"
 	depends on ARM64 || COMPILE_TEST
