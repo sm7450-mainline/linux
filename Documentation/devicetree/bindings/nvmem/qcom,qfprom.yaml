@@ -19,6 +19,7 @@ properties:
       - enum:
           - qcom,apq8064-qfprom
           - qcom,apq8084-qfprom
+          - qcom,fillmore-qfprom
           - qcom,glymur-qfprom
           - qcom,hawi-qfprom
           - qcom,ipq5018-qfprom
