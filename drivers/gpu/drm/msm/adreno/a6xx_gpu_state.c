@@ -1247,6 +1247,9 @@ static void a6xx_get_gmu_registers(struct msm_gpu *gpu,
 	if (adreno_is_a621(adreno_gpu) || adreno_is_a623(adreno_gpu))
 		_a6xx_get_gmu_registers(gpu, a6xx_state, &a621_gpucc_reg,
 			&a6xx_state->gmu_registers[2], false);
+	else if (adreno_is_a662(adreno_gpu))
+		_a6xx_get_gmu_registers(gpu, a6xx_state, &a662_gpucc_reg,
+			&a6xx_state->gmu_registers[2], false);
 	else
 		_a6xx_get_gmu_registers(gpu, a6xx_state, &a6xx_gpucc_reg,
 			&a6xx_state->gmu_registers[2], false);
