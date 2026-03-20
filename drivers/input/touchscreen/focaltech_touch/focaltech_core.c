@@ -13,16 +13,16 @@
  * GNU General Public License for more details.
  */
 
+#include <linux/gpio/consumer.h>
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
-#include <linux/of_gpio.h>
 #include <linux/of_irq.h>
 #include <linux/notifier.h>
 #include <linux/fb.h>
 #include <drm/drm_panel.h>
-
+#define DEBUG
 #include "focaltech_core.h"
 
 #define FTS_DRIVER_NAME		"fts_ts"
@@ -31,7 +31,6 @@
 
 struct fts_ts_data *fts_data;
 
-static int fts_ts_suspend(struct device *dev);
 static int fts_ts_resume(struct device *dev);
 
 int fts_check_cid(struct fts_ts_data *ts_data, u8 id_h)
@@ -303,30 +302,26 @@ static int fts_get_ic_information(struct fts_ts_data *ts_data)
 	int ret = 0;
 	int cnt = 0;
 	u8 chip_id[2] = { 0 };
+	u32 type = ts_data->pdata->type;
 
-	ts_data->ic_info.is_incell = FTS_CHIP_IDC;
-	ts_data->ic_info.hid_supported = FTS_HID_SUPPORTTED;
+	ts_data->ic_info.is_incell = FTS_CHIP_IDC(type);
+	ts_data->ic_info.hid_supported = FTS_HID_SUPPORTTED(type);
 
 	for (cnt = 0; cnt < 3; cnt++) {
-		fts_request_handle_reset(ts_data, 0);
-		mdelay(FTS_CMD_START_DELAY + (cnt * 8));
+		ret = fts_read_reg(FTS_REG_CHIP_ID, &chip_id[0]);
+		ret = fts_read_reg(FTS_REG_CHIP_ID2, &chip_id[1]);
 
-		ret = fts_read_bootid(ts_data, &chip_id[0]);
-		if (ret < 0) {
-			dev_dbg(ts_data->dev, "read boot id fail,retry:%d",
-				cnt);
-			continue;
+		if ((ret < 0) || (0x0 == chip_id[0]) || (0x0 == chip_id[1])) {
+			dev_err(ts_data->dev, "i2c read invalid, read:0x%02x%02x", chip_id[0], chip_id[1]);
+		} else {
+			ret = fts_get_chip_types(ts_data, chip_id[0], chip_id[1], VALID);
+			if (!ret)
+				break;
+			else
+				dev_info(ts_data->dev, "tp not ready, read:0x%02x%02x", chip_id[0], chip_id[1]);
 		}
 
-		ret = fts_get_chip_types(ts_data, chip_id[0], chip_id[1],
-					 INVALID);
-		if (ret < 0) {
-			dev_dbg(ts_data->dev,
-				"can't get ic informaton,retry:%d", cnt);
-			continue;
-		}
-
-		break;
+		msleep(INTERVAL_READ_REG);
 	}
 
 	if (cnt >= 3) {
@@ -782,7 +777,7 @@ static int fts_irq_registration(struct fts_ts_data *ts_data)
 	int ret = 0;
 	struct fts_ts_platform_data *pdata = ts_data->pdata;
 
-	ts_data->irq = gpio_to_irq(pdata->irq_gpio);
+	ts_data->irq = gpiod_to_irq(pdata->irq_gpio);
 	pdata->irq_gpio_flags = IRQF_TRIGGER_FALLING | IRQF_ONESHOT;
 	dev_info(ts_data->dev, "irq:%d, flag:%x", ts_data->irq,
 		 pdata->irq_gpio_flags);
@@ -892,45 +887,9 @@ static void fts_power_off(struct fts_ts_data *ts_data)
 	regulator_bulk_disable(ARRAY_SIZE(fts_tp_supplies), ts_data->supplies);
 }
 
-static int fts_power_suspend(struct fts_ts_data *ts_data)
-{
-	fts_power_off(ts_data);
-
-	return 0;
-}
-
 static int fts_power_resume(struct fts_ts_data *ts_data)
 {
 	return fts_power_on(ts_data);
-}
-
-static int fts_gpio_configure(struct fts_ts_data *data)
-{
-	int ret = 0;
-
-	/* request irq gpio */
-	if (gpio_is_valid(data->pdata->irq_gpio)) {
-		ret = gpio_request(data->pdata->irq_gpio, "fts_irq_gpio");
-		if (ret) {
-			dev_err(data->dev, "[GPIO]irq gpio request failed");
-			goto err_irq_gpio_req;
-		}
-
-		ret = gpio_direction_input(data->pdata->irq_gpio);
-		if (ret) {
-			dev_err(data->dev,
-				"[GPIO]set_direction for irq gpio failed");
-			goto err_irq_gpio_dir;
-		}
-	}
-
-	return 0;
-
-err_irq_gpio_dir:
-	if (gpio_is_valid(data->pdata->irq_gpio))
-		gpio_free(data->pdata->irq_gpio);
-err_irq_gpio_req:
-	return ret;
 }
 
 static int fts_get_dt_coords(struct device *dev, char *name,
@@ -1021,8 +980,8 @@ static int fts_parse_dt(struct device *dev, struct fts_ts_platform_data *pdata)
 			 pdata->key_y_coords[2]);
 	}
 
-	pdata->irq_gpio = of_get_named_gpio(np, "focaltech,irq-gpio", 0);
-	if (pdata->irq_gpio < 0)
+	pdata->irq_gpio = devm_gpiod_get_optional(dev, "irq", GPIOD_IN);
+	if (IS_ERR(pdata->irq_gpio))
 		dev_err(dev, "Unable to get irq_gpio");
 
 	ret = of_property_read_u32(np, "focaltech,max-touch-number", &temp_val);
@@ -1040,8 +999,11 @@ static int fts_parse_dt(struct device *dev, struct fts_ts_platform_data *pdata)
 			pdata->max_touch_number = temp_val;
 	}
 
-	dev_info(dev, "max touch number:%d, irq gpio:%d",
-		 pdata->max_touch_number, pdata->irq_gpio);
+	ret = of_property_read_u32(np, "focaltech,ic-type", &temp_val);
+	if (ret < 0)
+		pdata->type = _FT3518;
+	else
+		pdata->type = temp_val;
 
 	return 0;
 }
@@ -1052,38 +1014,6 @@ static void fts_resume_work(struct work_struct *work)
 		container_of(work, struct fts_ts_data, resume_work);
 
 	fts_ts_resume(ts_data->dev);
-}
-
-static int fts_ts_suspend(struct device *dev)
-{
-	int ret = 0;
-	struct fts_ts_data *ts_data = fts_data;
-
-	if (ts_data->suspended) {
-		dev_info(dev, "Already in suspend state");
-		return 0;
-	}
-
-	if (ts_data->fw_loading) {
-		dev_info(dev, "fw upgrade in process, can't suspend");
-		return 0;
-	}
-
-	dev_info(dev, "make TP enter into sleep mode");
-	ret = fts_write_reg(FTS_REG_POWER_MODE, FTS_REG_POWER_MODE_SLEEP);
-	if (ret < 0)
-		dev_err(dev, "set TP to sleep mode fail, ret=%d", ret);
-
-	if (!ts_data->ic_info.is_incell) {
-		ret = fts_power_suspend(ts_data);
-		if (ret < 0)
-			dev_err(dev, "power enter suspend fail");
-	}
-
-	fts_release_all_finger();
-	ts_data->suspended = true;
-
-	return 0;
 }
 
 static int fts_ts_resume(struct device *dev)
@@ -1233,18 +1163,12 @@ static int fts_ts_probe(struct spi_device *spi)
 		goto err_buffer_init;
 	}
 
-	ret = fts_gpio_configure(ts_data);
-	if (ret)
-		dev_err(&spi->dev, "configure the gpios fail");
-
-#if (!FTS_CHIP_IDC)
 	fts_request_handle_reset(ts_data, 200);
-#endif
 
 	ret = fts_get_ic_information(ts_data);
 	if (ret) {
 		dev_err(&spi->dev, "not focal IC, unregister driver");
-		goto err_irq_req;
+		goto err_buffer_init;
 	}
 
 	ret = fts_create_sysfs(ts_data);
@@ -1258,7 +1182,7 @@ static int fts_ts_probe(struct spi_device *spi)
 	ret = fts_irq_registration(ts_data);
 	if (ret) {
 		dev_err(&spi->dev, "request irq failed");
-		goto err_irq_req;
+		goto err_buffer_init;
 	}
 
 	ret = fts_fwupg_init(ts_data);
@@ -1279,9 +1203,6 @@ static int fts_ts_probe(struct spi_device *spi)
 
 	return 0;
 
-err_irq_req:
-	if (gpio_is_valid(ts_data->pdata->irq_gpio))
-		gpio_free(ts_data->pdata->irq_gpio);
 err_buffer_init:
 	input_unregister_device(ts_data->input_dev);
 err_input_init:
@@ -1310,9 +1231,6 @@ static void fts_ts_remove(struct spi_device *spi)
 
 	if (fts_data->ts_workqueue)
 		destroy_workqueue(fts_data->ts_workqueue);
-
-	if (gpio_is_valid(fts_data->pdata->irq_gpio))
-		gpio_free(fts_data->pdata->irq_gpio);
 
 	fts_power_off(fts_data);
 }

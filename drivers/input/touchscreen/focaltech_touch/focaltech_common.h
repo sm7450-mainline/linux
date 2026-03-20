@@ -16,9 +16,10 @@
 #ifndef __LINUX_FOCALTECH_COMMON_H__
 #define __LINUX_FOCALTECH_COMMON_H__
 
-#define FTS_CHIP_TYPE 0x3680008A
 #define FTS_AUTO_UPGRADE_EN 1
 #define FTS_GET_MODULE_NUM 0
+
+#define _FT3518             0x35180481
 
 /*
  * module_id: mean vendor_id generally, also maybe gpio or lcm_id...
@@ -81,15 +82,19 @@
 #define FLAG_HID_BIT		10
 #define FLAG_IDC_BIT		11
 
-#define IC_SERIALS		(FTS_CHIP_TYPE & FLAGBITS(0, FLAG_ICSERIALS_LEN-1))
+#define IC_SERIALS(type)	((type) & FLAGBITS(0, FLAG_ICSERIALS_LEN-1))
 #define IC_TO_SERIALS(x)	((x) & FLAGBITS(0, FLAG_ICSERIALS_LEN-1))
-#define FTS_CHIP_IDC		((FTS_CHIP_TYPE & FLAGBIT(FLAG_IDC_BIT)) == FLAGBIT(FLAG_IDC_BIT))
-#define FTS_HID_SUPPORTTED	((FTS_CHIP_TYPE & FLAGBIT(FLAG_HID_BIT)) == FLAGBIT(FLAG_HID_BIT))
+#define FTS_CHIP_IDC(type)		(((type) & FLAGBIT(FLAG_IDC_BIT)) == FLAGBIT(FLAG_IDC_BIT))
+#define FTS_HID_SUPPORTTED(type)	(((type) & FLAGBIT(FLAG_HID_BIT)) == FLAGBIT(FLAG_HID_BIT))
 
 #define FTS_MAX_CHIP_IDS	8
 
 #define FTS_CHIP_TYPE_MAPPING \
-				{ { 0x8A, 0x56, 0x62, 0x56, 0x62, 0x56, 0xE2, 0x00, 0x00 } }
+				{ \
+				{0x88, 0x56, 0x52, 0x00, 0x00, 0x00, 0x00, 0x56, 0xB2}, \
+				{0x81, 0x54, 0x52, 0x54, 0x52, 0x00, 0x00, 0x54, 0x5C}, \
+				{0x1C, 0x87, 0x26, 0x87, 0x20, 0x87, 0xA0, 0x00, 0x00}, \
+				}
 
 #define FILE_NAME_LENGTH			128
 #define ENABLE					1

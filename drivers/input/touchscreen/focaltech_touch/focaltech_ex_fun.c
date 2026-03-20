@@ -566,9 +566,6 @@ static ssize_t fts_driverinfo_show(struct device *dev,
 	count += snprintf(buf + count, PAGE_SIZE, "Max Touchs:%d\n",
 			  pdata->max_touch_number);
 
-	count += snprintf(buf + count, PAGE_SIZE, "int gpio:%d,irq:%d\n",
-			  pdata->irq_gpio, ts_data->irq);
-
 	count += snprintf(buf + count, PAGE_SIZE, "IC ID:0x%02x%02x\n",
 			  ts_data->ic_info.ids.chip_idh,
 			  ts_data->ic_info.ids.chip_idl);
