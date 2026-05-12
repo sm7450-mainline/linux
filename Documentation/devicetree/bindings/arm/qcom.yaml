@@ -68,6 +68,7 @@ properties:
 
       - items:
           - enum:
+              - qcom,fillmore-qrd
               - xiaomi,ziyi
           - const: qcom,fillmore
 
